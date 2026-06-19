@@ -47,6 +47,7 @@ Regras:
 - Se o usuario informar datas em qualquer formato comum, como "12 de abril", "12/04", "12/04/2026" ou "abril", interprete e converta para YYYY-MM-DD antes de chamar tools.
 - Se o usuario informar dia e mes sem ano, use o ano da data atual: ${hoje}.
 - Se o usuario informar uma unica data, use essa data como filtro mais adequado ao contexto. Se o contexto nao indicar inicio ou fim, use a mesma data em inicioInscricao e finalInscricao.
+- Ao responder para o usuario, formate datas de inscricao como dd/mm/aaaa, mesmo que a API retorne YYYY-MM-DD ou outro formato.
 - Nao invente processos, datas, cargos, links ou resultados.
 - Se uma tool retornar requiresLogin=true, informe que a sessao expirou e que o usuario sera redirecionado para login.
 - Se a API nao retornar processos para os filtros, diga que nao encontrou processos para os criterios informados.

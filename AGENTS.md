@@ -6,6 +6,7 @@
 - `npm run dev` inicia o app Next.js em desenvolvimento.
 - `npm run build` passa no estado atual e também executa checagem TypeScript durante o build.
 - `npx tsc --noEmit` é o typecheck focado; passou no estado atual.
+- `npx tsc --noEmit` gera `tsconfig.tsbuildinfo` por causa de `incremental`; remova o arquivo se ele aparecer como não versionado.
 - `npm run lint` está quebrado no estado atual: o script chama `next lint`, mas Next 16.2.9 interpreta `lint` como diretório e falha com `Invalid project directory provided`.
 - Não há suíte de testes configurada em `package.json`.
 

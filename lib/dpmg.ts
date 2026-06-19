@@ -2,7 +2,9 @@ const MUNICIPIOS_URL =
   'https://gerais.defensoria.mg.def.br/unidade/service/integracao/municipio?codigoEstado=031';
 
 const PROCESSOS_URL =
-  'https://gerais.defensoria.mg.def.br/cesv/service/estagio/busca-paginada/1-5';
+  'https://gerais.defensoria.mg.def.br/cesv/service/estagio/busca-paginada/1-100';
+
+const LIMITE_PROCESSOS_RETORNADOS = 5;
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -32,7 +34,7 @@ export async function buscarMunicipio(nomeCidade: string) {
 
   const data = await response.json();
   const municipios = extrairLista(data);
-  const termo = normalizarTexto(nomeCidade);
+  const termo = normalizarTexto(obterAliasMunicipio(nomeCidade));
 
   const candidatos = municipios
     .map((municipio) => ({
@@ -61,6 +63,14 @@ export async function buscarMunicipio(nomeCidade: string) {
     uuidMunicipio: melhorResultado.uuidMunicipio,
     candidatos: candidatos.map(({ nome, uuidMunicipio }) => ({ nome, uuidMunicipio })),
   };
+}
+
+function obterAliasMunicipio(nomeCidade: string) {
+  const aliases: Record<string, string> = {
+    bh: 'Belo Horizonte',
+  };
+
+  return aliases[normalizarTexto(nomeCidade)] ?? nomeCidade;
 }
 
 export async function consultarProcessosEstagio(
@@ -99,7 +109,7 @@ export async function consultarProcessosEstagio(
     throw new LoginObrigatorioError(response.status, body);
   }
 
-  return body ? JSON.parse(body) : null;
+  return body ? limitarProcessosEstagio(JSON.parse(body), LIMITE_PROCESSOS_RETORNADOS) : null;
 }
 
 export async function verificarLoginDpmg(token: string) {
@@ -145,6 +155,29 @@ function extrairLista(data: unknown): UnknownRecord[] {
   }
 
   return [];
+}
+
+function limitarProcessosEstagio(data: unknown, limite: number) {
+  if (Array.isArray(data)) {
+    return data.slice(0, limite);
+  }
+
+  if (!isRecord(data)) {
+    return data;
+  }
+
+  for (const key of ['content', 'data', 'dados', 'items', 'resultado', 'result']) {
+    const value = data[key];
+
+    if (Array.isArray(value)) {
+      return {
+        ...data,
+        [key]: value.slice(0, limite),
+      };
+    }
+  }
+
+  return data;
 }
 
 function obterCampoTexto(item: UnknownRecord, campos: string[]) {
